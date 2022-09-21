@@ -21,8 +21,8 @@ function main() {
     uniform float uTheta;
     varying vec3 vColor;
     void main() {
-        float x = -sin(uTheta) * (aPosition.x+0) + cos(uTheta) * (aPosition.y+0);
-        float y = cos(uTheta) * (aPosition.x+0) + sin(uTheta) * (aPosition.y+0);
+        float x = -sin(uTheta) * aPosition.x + cos(uTheta) * aPosition.y;
+        float y = cos(uTheta) * aPosition.x + sin(uTheta) * aPosition.y;
         gl_Position = vec4(x, y, 0.0, 1.0);
         vColor = aColor;
     }
