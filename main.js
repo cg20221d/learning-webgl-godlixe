@@ -4,7 +4,7 @@ function main() {
 
     var vertices = [
         0.5, 0.0, 0.0, 1.0, 1.0,   // A: kanan atas    (BIRU LANGIT)
-        0.0, -0.5, 1.0, 0.0, 1.0,   // B: bawah tengah  (MAGENTA)
+        0.0, -0.5, 1.0, 0.0, 1.0,  // B: bawah tengah  (MAGENTA)
         -0.5, 0.0, 1.0, 1.0, 0.0,  // C: kiri atas     (KUNING)
         0.0, 0.5, 1.0, 1.0, 1.0    // D: atas tengah   (PUTIH)
     ];
@@ -17,13 +17,21 @@ function main() {
     var vertexShaderCode =  `
     attribute vec2 aPosition;
     attribute vec3 aColor;
-    // uniform int uOffset;
     uniform float uTheta;
+    uniform vec2 uDelta;
     varying vec3 vColor;
     void main() {
-        float x = -sin(uTheta) * aPosition.x + cos(uTheta) * aPosition.y;
-        float y = cos(uTheta) * aPosition.x + sin(uTheta) * aPosition.y;
-        gl_Position = vec4(x, y, 0.0, 1.0);
+        //float x = -sin(uTheta) * aPosition.x + cos(uTheta) * aPosition.y;
+        //float y = cos(uTheta) * aPosition.x + sin(uTheta) * aPosition.y;
+        //gl_Position = vec4(x + uDelta.x, y + uDelta.y, 0.0, 1.0);
+
+        vec2 position = aPosition;
+        vec3 d = vec3(0.5, -0.5, 0.0);
+        mat4 translation = mat4(1.0, 0.0, 0.0, 0.0,
+                                0.0, 1.0, 0.0, 0.0,
+                                0.0, 0.0, 1.0, 0.0,
+                                d.x, d.y, d.z, 1.0);
+        gl_Position = translation * vec4(position, 0.0, 1.0);
         vColor = aColor;
     }
     `;
@@ -51,11 +59,16 @@ function main() {
 
     // Variabel lokal
     var theta = 0.0;
-    var freeze = false
+    var freeze = false;
+    var horizontalSpeed = 0.0;
+    var verticalSpeed = 0.0;
+    var horizontalDelta = 0.0;
+    var verticalDelta = 0.0;
 
     // Variabel pointer ke GLSL
     var uTheta = gl.getUniformLocation(shaderProgram, "uTheta");
-    // var uOffset = gl.getUniformLocation(shaderProgram, "uOffset");
+    var uDelta = gl.getUniformLocation(shaderProgram, "uDelta");
+
     // Kita mengajari GPU bagaimana caranya mengoleksi
     //  nilai posisi dari ARRAY_BUFFER
     //  untuk setiap verteks yang sedang diproses
@@ -70,31 +83,51 @@ function main() {
         2 * Float32Array.BYTES_PER_ELEMENT);
     gl.enableVertexAttribArray(aColor);
 
-        function onMouseClick(event){
-            freeze = !freeze
+    // Grafika interaktif
+    // Tetikus
+    function onMouseClick(event) {
+        freeze = !freeze;
+    }
+    document.addEventListener("click", onMouseClick);
+    // Papan ketuk
+    function onKeydown(event) {
+        if (event.keyCode == 32) freeze = !freeze;  // spasi
+        // Gerakan horizontal: a ke kiri, d ke kanan
+        if (event.keyCode == 65) {  // a
+            horizontalSpeed = -0.01;
+        } else if (event.keyCode == 68) {   // d
+            horizontalSpeed = 0.01;
         }
-        function onkeyDown(event){
-            freeze = !freeze
+        // Gerakan vertikal: w ke atas, s ke bawah
+        if (event.keyCode == 87) {  // w
+            verticalSpeed = -0.01;
+        } else if (event.keyCode == 83) {   // s
+            verticalSpeed = 0.01;
         }
-        function onKeyUp(event){
-            freeze = !freeze
-        }
-
-        document.addEventListener("click", onMouseClick)
-        document.addEventListener("keyup", onKeyUp)
-        document.addEventListener("keydown", onkeydown)
+    }
+    function onKeyup(event) {
+        if (event.keyCode == 32) freeze = !freeze;
+        if (event.keyCode == 65 || event.keyCode == 68) horizontalSpeed = 0.0;
+        if (event.keyCode == 87 || event.keyCode == 83) verticalSpeed = 0.0;
+    }
+    document.addEventListener("keydown", onKeydown);
+    document.addEventListener("keyup", onKeyup);
 
     function render() {
-            gl.clearColor(0.0,      0.0,    0.0,    1.0);  // Oranye
+        gl.clearColor(1.0,      0.65,    0.0,    1.0);  // Oranye
         //            Merah     Hijau   Biru    Transparansi
-            gl.clear(gl.COLOR_BUFFER_BIT);
-            if(!freeze){
-                theta += 0.01;
-                gl.uniform1f(uTheta, theta)
-            }
-            gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
-            requestAnimationFrame(render)
-        
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        /*
+        if (!freeze) {
+            theta += 0.1;
+            gl.uniform1f(uTheta, theta);
+        }
+        horizontalDelta += horizontalSpeed;
+        verticalDelta -= verticalSpeed;
+        gl.uniform2f(uDelta, horizontalDelta, verticalDelta);
+        */
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+        requestAnimationFrame(render);
     }
-        requestAnimationFrame(render) 
+    requestAnimationFrame(render);
 }

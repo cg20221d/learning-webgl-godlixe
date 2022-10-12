@@ -6,27 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Belajar WebGL</title>
 </head>
-<style>
-    * { margin: 0; padding: 0; }
-    html , body { width:100%; height:100%; }
-    canvas { display: block; width: 100vw; height: 100vh;}
-  </style>
 <body onload="main()">
-    <canvas id="kanvas" width="1920" height="1080"></canvas>
-    <script src="three.js"></script>
-    <script>
-        const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
-const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-const cube = new THREE.Mesh( geometry, material );
-scene.add( cube );
-
-camera.position.z = 5;
-    </script>
+    <canvas id="kanvas" width="200" height="200">
+        Pakai Internet Explorer ya?
+    </canvas>
+    <script src="main.js"></script>
 </body>
 </html>
